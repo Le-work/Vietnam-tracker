@@ -1,0 +1,509 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Việt Nam — 26 Day Planner</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,400;12..96,700;12..96,800&family=Public+Sans:wght@400;600&family=IBM+Plex+Mono:wght@400;500&display=swap');
+
+:root{
+  --bg:#E7EFE6;        /* pale celadon */
+  --ink:#16382F;       /* deep jade */
+  --ink-soft:#4A6A5F;
+  --card:#FFFFFF;
+  --stub:#16382F;
+  --stub-text:#E7EFE6;
+  --gold:#DFA33C;
+  --red:#C6402C;
+  --line:#C7D6C6;
+  --done-bg:#F2F6F0;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+body{background:var(--bg);color:var(--ink);font-family:'Public Sans',system-ui,sans-serif;-webkit-font-smoothing:antialiased}
+.wrap{max-width:880px;margin:0 auto;padding:36px 18px 90px}
+.mono{font-family:'IBM Plex Mono',monospace}
+.eyebrow-row{display:flex;justify-content:space-between;align-items:baseline;flex-wrap:wrap;gap:8px}
+.eyebrow{font-family:'IBM Plex Mono',monospace;font-size:12px;letter-spacing:.25em;text-transform:uppercase;color:var(--ink-soft)}
+.status-row{display:flex;align-items:center;gap:10px}
+#status{font-family:'IBM Plex Mono',monospace;font-size:12px;color:var(--ink-soft)}
+h1{font-family:'Bricolage Grotesque',sans-serif;font-weight:800;font-size:clamp(34px,8vw,58px);line-height:1.02;letter-spacing:-.02em;margin:10px 0 6px}
+h1 .accent{color:var(--red)}
+.lede{color:var(--ink-soft);font-size:15px;max-width:520px;line-height:1.55;margin:8px 0 20px}
+
+.progress-row{display:flex;align-items:center;gap:14px;margin-bottom:16px}
+.bar{flex:1;height:8px;background:#D3E0D2;border-radius:99px;overflow:hidden}
+.bar-fill{height:100%;width:0%;background:linear-gradient(90deg,var(--gold),var(--red));border-radius:99px;transition:width .3s ease}
+.progress-label{font-family:'IBM Plex Mono',monospace;font-size:13px;white-space:nowrap}
+
+.summary{display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:14px;margin-bottom:26px}
+.sum-card{border-radius:14px;padding:16px 18px}
+.sum-card.dark{background:var(--stub);color:var(--stub-text)}
+.sum-card.light{background:var(--card);border:1px solid var(--line)}
+.sum-label{font-family:'IBM Plex Mono',monospace;font-size:10px;letter-spacing:.22em;text-transform:uppercase;opacity:.75;margin-bottom:8px}
+.sum-card.light .sum-label{color:var(--ink-soft);opacity:1}
+.sum-big{font-family:'Bricolage Grotesque',sans-serif;font-weight:800;font-size:30px;line-height:1.1;margin-bottom:10px}
+.sum-big small{font-size:15px;font-weight:400;opacity:.8}
+.sum-sub{display:flex;justify-content:space-between;gap:10px;font-size:12.5px;flex-wrap:wrap}
+.sum-card.light .sum-sub{color:var(--ink-soft)}
+.sum-hint{font-size:11.5px;margin-top:8px;opacity:.85}
+.sum-card.light .sum-hint{color:var(--ink-soft)}
+.date-row{display:flex;align-items:center;gap:8px;font-size:12px;margin-top:4px}
+.date-row .lbl{font-family:'IBM Plex Mono',monospace;font-size:10px;letter-spacing:.15em;text-transform:uppercase;opacity:.75}
+input[type=date]{background:rgba(231,239,230,.12);color:var(--stub-text);border:1px solid rgba(231,239,230,.3);border-radius:7px;padding:5px 8px;font-family:'IBM Plex Mono',monospace;font-size:12px;color-scheme:dark}
+
+.panel{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:18px 18px 14px;box-shadow:0 1px 0 rgba(22,56,47,.06);margin-bottom:26px}
+.panel-head{display:flex;align-items:center;gap:10px;margin-bottom:10px;flex-wrap:wrap}
+.tag{font-family:'IBM Plex Mono',monospace;font-size:11px;letter-spacing:.22em;text-transform:uppercase;color:var(--stub-text);background:var(--stub);padding:4px 10px;border-radius:6px}
+.panel-hint{font-size:12px;color:var(--ink-soft)}
+textarea,input[type=text],input[type=tel]{font-family:'Public Sans',sans-serif;font-size:14.5px;color:var(--ink);border:none;outline:none;background:transparent;width:100%}
+#sideNotes{resize:vertical;min-height:90px;line-height:1.6}
+
+.days{display:grid;gap:14px;margin-bottom:26px}
+.ticket{position:relative;display:grid;grid-template-columns:84px 1fr;background:var(--card);border:1px solid var(--line);border-radius:14px;overflow:hidden;box-shadow:0 1px 0 rgba(22,56,47,.05);transition:box-shadow .2s ease}
+.ticket.done{background:var(--done-bg)}
+.ticket.today{border:2px solid var(--gold);box-shadow:0 4px 16px rgba(223,163,60,.25)}
+.ticket.open{box-shadow:0 6px 24px rgba(22,56,47,.12)}
+.stub{background:var(--stub);color:var(--stub-text);border:none;border-right:2px dashed var(--bg);cursor:pointer;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:4px;padding:14px 6px;transition:background .2s ease,color .2s ease}
+.ticket.done .stub{background:var(--gold);color:var(--ink)}
+.stub .s1{font-family:'IBM Plex Mono',monospace;font-size:10px;letter-spacing:.2em;text-transform:uppercase;opacity:.75}
+.stub .s2{font-family:'Bricolage Grotesque',sans-serif;font-weight:800;font-size:26px;line-height:1}
+.stub .s3{font-family:'IBM Plex Mono',monospace;font-size:9px;letter-spacing:.15em;text-transform:uppercase;opacity:.8}
+.hole{position:absolute;left:76px;width:16px;height:16px;border-radius:50%;background:var(--bg)}
+.hole.top{top:-8px}.hole.bot{bottom:-8px}
+.t-body{padding:14px 16px 14px 18px;min-width:0}
+.t-head{background:none;border:none;padding:0;width:100%;text-align:left;cursor:pointer;color:inherit;font:inherit}
+.t-row{display:flex;align-items:center;justify-content:space-between;gap:10px}
+.t-title{font-family:'Bricolage Grotesque',sans-serif;font-weight:700;font-size:17.5px;line-height:1.25;overflow-wrap:anywhere}
+.ticket.done .t-title{text-decoration:line-through;text-decoration-color:var(--gold);text-decoration-thickness:2px}
+.t-title .empty{color:var(--ink-soft);font-style:italic;font-weight:400}
+.today-chip{font-family:'IBM Plex Mono',monospace;font-size:9px;letter-spacing:.18em;text-transform:uppercase;background:var(--gold);color:var(--ink);border-radius:5px;padding:3px 7px;margin-right:8px;display:inline-block;vertical-align:middle;text-decoration:none}
+.t-right{display:flex;align-items:center;gap:8px;flex-shrink:0}
+.b-chip{font-family:'IBM Plex Mono',monospace;font-size:11.5px;color:var(--red);background:#FBEDE9;border-radius:6px;padding:3px 8px;white-space:nowrap}
+.chev{font-family:'IBM Plex Mono',monospace;font-size:14px;color:var(--ink-soft);transition:transform .18s ease;display:inline-block}
+.ticket.open .chev{transform:rotate(90deg)}
+.t-preview{margin-top:5px;font-size:13px;color:var(--ink-soft);line-height:1.5;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
+.t-details{display:none;margin-top:12px;gap:10px}
+.ticket.open .t-details{display:grid}
+.field{display:grid;gap:5px}
+.field .lbl{font-family:'IBM Plex Mono',monospace;font-size:10px;letter-spacing:.2em;text-transform:uppercase;color:var(--ink-soft)}
+.field input,.field textarea{border:1px solid var(--line);border-radius:8px;padding:9px 11px;font-size:15px;background:#FDFEFC}
+.field textarea{font-size:14px;line-height:1.55;resize:vertical}
+.field input:focus,.field textarea:focus,#sideNotes:focus{border-color:var(--gold)}
+.budget-row{display:flex;align-items:center;gap:10px}
+.budget-row input{max-width:200px;font-family:'IBM Plex Mono',monospace}
+.budget-eq{font-family:'IBM Plex Mono',monospace;font-size:13px;color:var(--red);white-space:nowrap}
+
+.btn{border-radius:8px;padding:8px 16px;font-size:13px;cursor:pointer;font-family:'Public Sans',sans-serif}
+.btn.dark{background:var(--stub);color:var(--stub-text);border:none}
+.btn.ghost{background:none;border:1px solid var(--line);color:var(--ink)}
+.btn.danger{background:var(--red);color:#fff;border:none}
+.btn.small{padding:5px 12px;font-size:12px;font-family:'IBM Plex Mono',monospace}
+
+.backup-msg{font-size:12.5px;margin-top:8px}
+#backupText{border:1px solid var(--line);border-radius:8px;padding:9px 11px;font-size:12px;font-family:'IBM Plex Mono',monospace;background:#FDFEFC;resize:vertical;width:100%;line-height:1.5;word-break:break-all;margin-top:10px}
+.backup-btns{display:flex;gap:8px;flex-wrap:wrap;margin-top:12px}
+.hidden{display:none}
+
+footer{display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:12px;border-top:1px solid var(--line);padding-top:18px}
+.foot-note{font-family:'IBM Plex Mono',monospace;font-size:11px;letter-spacing:.15em;text-transform:uppercase;color:var(--ink-soft)}
+#confirmBox{display:none;gap:8px;align-items:center;flex-wrap:wrap}
+#confirmBox.show{display:flex}
+#confirmBox .q{font-size:13px;color:var(--red)}
+button:focus-visible{outline:2px solid var(--gold);outline-offset:2px}
+@media (prefers-reduced-motion:reduce){*{transition:none!important}}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <header>
+    <div class="eyebrow-row">
+      <div class="eyebrow">Vietnam · 26 days</div>
+      <div class="status-row">
+        <span id="status" aria-live="polite">Saved on this browser</span>
+        <button class="btn dark small" id="saveNowBtn">Save now</button>
+      </div>
+    </div>
+    <h1>Việt Nam,<br><span class="accent">one ticket a day.</span></h1>
+    <p class="lede">Every day is a blank ticket. Tap one to write your plan, notes and budget, then stamp it done. Everything saves in this browser on this phone — no account needed.</p>
+
+    <div class="progress-row">
+      <div class="bar"><div class="bar-fill" id="barFill"></div></div>
+      <div class="progress-label" id="progressLabel">0/26 done</div>
+    </div>
+
+    <div class="summary">
+      <div class="sum-card dark">
+        <div class="sum-label">Countdown</div>
+        <div class="sum-big" id="countdownBig"><small>Set your Day 1 date below.</small></div>
+        <div class="date-row">
+          <span class="lbl">Day 1:</span>
+          <input type="date" id="startDate" />
+        </div>
+      </div>
+      <div class="sum-card light">
+        <div class="sum-label">Budget · all 26 days</div>
+        <div class="sum-big" id="budgetTotal">0 ₫</div>
+        <div class="sum-sub">
+          <span>Spent (done days): <strong id="budgetSpent" style="color:var(--red)">0 ₫</strong></span>
+          <span>Left: <strong id="budgetLeft">0 ₫</strong></span>
+        </div>
+        <div class="sum-hint">Add a cost inside each day — the total updates by itself.</div>
+      </div>
+    </div>
+  </header>
+
+  <section class="panel" aria-label="General side notes">
+    <div class="panel-head">
+      <span class="tag">Side notes</span>
+      <span class="panel-hint">general things — budget, addresses, reminders</span>
+    </div>
+    <textarea id="sideNotes" rows="4" placeholder="Write anything here.
+e.g. Carry cash for markets · Museums close Mondays · Grab bike is cheapest · Say 'không cay' = not spicy"></textarea>
+  </section>
+
+  <section class="days" id="days" aria-label="Daily plan"></section>
+
+  <section class="panel" aria-label="Backup">
+    <div class="panel-head" style="justify-content:space-between;margin-bottom:0">
+      <div>
+        <div class="sum-label" style="color:var(--ink-soft);opacity:1;margin-bottom:4px">Backup code</div>
+        <div class="panel-hint">Copy your whole plan as text. Paste it back anytime to restore — even on another phone.</div>
+      </div>
+      <button class="btn ghost" id="backupToggle">Open</button>
+    </div>
+    <div id="backupPanel" class="hidden">
+      <div class="backup-btns">
+        <button class="btn dark" id="exportBtn">Get my backup code</button>
+        <button class="btn ghost" id="importBtn">Restore from pasted code</button>
+      </div>
+      <textarea id="backupText" rows="4" placeholder="Your backup code appears here — or paste a saved code here, then tap Restore."></textarea>
+      <div class="backup-msg" id="backupMsg"></div>
+    </div>
+  </section>
+
+  <footer>
+    <span class="foot-note">Saves on this browser · comes back when you return</span>
+    <button class="btn ghost" id="resetBtn">Reset planner</button>
+    <span id="confirmBox">
+      <span class="q">Erase all notes and progress?</span>
+      <button class="btn danger" id="resetYes">Yes, reset</button>
+      <button class="btn ghost" id="resetNo">Keep it</button>
+    </span>
+  </footer>
+
+</div>
+
+<script>
+(function(){
+"use strict";
+var KEY = "vietnam-planner-v1";
+var DAYS = 26;
+
+// ---------- State ----------
+function defaultState(){
+  var days = [];
+  for (var i = 1; i <= DAYS; i++) days.push({ title:"", note:"", done:false, budget:"" });
+  return { days: days, sideNotes:"", startDate:"" };
+}
+
+var storageWorks = true;
+try {
+  localStorage.setItem("__vn_test__","1");
+  localStorage.removeItem("__vn_test__");
+} catch(e){ storageWorks = false; }
+
+function load(){
+  if (!storageWorks) return defaultState();
+  try {
+    var raw = localStorage.getItem(KEY);
+    if (!raw) return defaultState();
+    var p = JSON.parse(raw);
+    if (!p || !Array.isArray(p.days) || p.days.length !== DAYS) return defaultState();
+    return {
+      days: p.days.map(function(d){ return { title:d.title||"", note:d.note||"", done:!!d.done, budget:d.budget||"" }; }),
+      sideNotes: p.sideNotes || "",
+      startDate: p.startDate || ""
+    };
+  } catch(e){ return defaultState(); }
+}
+
+var state = load();
+var statusEl = document.getElementById("status");
+
+function save(){
+  if (!storageWorks){
+    statusEl.textContent = "This browser blocks saving — use Backup code";
+    statusEl.style.color = "var(--red)";
+    return;
+  }
+  try {
+    localStorage.setItem(KEY, JSON.stringify(state));
+    statusEl.textContent = "Saved on this browser";
+    statusEl.style.color = "var(--ink-soft)";
+  } catch(e){
+    statusEl.textContent = "Save failed — use Backup code";
+    statusEl.style.color = "var(--red)";
+  }
+}
+
+// ---------- Helpers ----------
+function fmtVND(n){
+  n = Number(n) || 0;
+  return n.toLocaleString("en-US") + " \u20AB";
+}
+function esc(s){
+  return String(s).replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;").replace(/"/g,"&quot;");
+}
+
+// ---------- Render day tickets (once) ----------
+var daysEl = document.getElementById("days");
+var openIdx = -1;
+
+function buildTickets(){
+  var html = "";
+  for (var i = 0; i < DAYS; i++){
+    html +=
+    '<article class="ticket" data-i="'+i+'">' +
+      '<button class="stub" data-act="toggle" data-i="'+i+'" title="Mark done / not done">' +
+        '<span class="s1">Day</span><span class="s2">'+(i+1)+'</span><span class="s3" data-role="stublabel">tap \u2713</span>' +
+      '</button>' +
+      '<span class="hole top" aria-hidden="true"></span>' +
+      '<span class="hole bot" aria-hidden="true"></span>' +
+      '<div class="t-body">' +
+        '<button class="t-head" data-act="open" data-i="'+i+'">' +
+          '<div class="t-row">' +
+            '<h2 class="t-title" data-role="title"></h2>' +
+            '<span class="t-right">' +
+              '<span class="b-chip hidden" data-role="chip"></span>' +
+              '<span class="chev" aria-hidden="true">\u203A</span>' +
+            '</span>' +
+          '</div>' +
+          '<p class="t-preview hidden" data-role="preview"></p>' +
+        '</button>' +
+        '<div class="t-details">' +
+          '<label class="field"><span class="lbl">Plan</span>' +
+            '<input type="text" data-field="title" data-i="'+i+'" placeholder="What\u2019s the plan?"></label>' +
+          '<label class="field"><span class="lbl">Budget (\u20AB VND)</span>' +
+            '<span class="budget-row">' +
+              '<input type="tel" inputmode="numeric" data-field="budget" data-i="'+i+'" placeholder="e.g. 250000">' +
+              '<span class="budget-eq hidden" data-role="eq"></span>' +
+            '</span></label>' +
+          '<label class="field"><span class="lbl">My notes</span>' +
+            '<textarea rows="3" data-field="note" data-i="'+i+'" placeholder="Times, prices, who you\u2019re going with, what to bring\u2026"></textarea></label>' +
+        '</div>' +
+      '</div>' +
+    '</article>';
+  }
+  daysEl.innerHTML = html;
+}
+
+function refreshTicket(i){
+  var t = daysEl.querySelector('.ticket[data-i="'+i+'"]');
+  var d = state.days[i];
+  t.classList.toggle("done", d.done);
+  t.classList.toggle("open", openIdx === i);
+  t.querySelector('[data-role="stublabel"]').textContent = d.done ? "\u2713 done" : "tap \u2713";
+
+  var titleEl = t.querySelector('[data-role="title"]');
+  var todayChip = (i === currentDayIdx()) ? '<span class="today-chip">Today</span>' : "";
+  titleEl.innerHTML = todayChip + (d.title ? esc(d.title) : '<span class="empty">Untitled day \u2014 tap to plan</span>');
+  t.classList.toggle("today", i === currentDayIdx());
+
+  var chip = t.querySelector('[data-role="chip"]');
+  if (Number(d.budget) > 0){ chip.textContent = fmtVND(d.budget); chip.classList.remove("hidden"); }
+  else chip.classList.add("hidden");
+
+  var prev = t.querySelector('[data-role="preview"]');
+  if (openIdx !== i && d.note){ prev.textContent = "\uD83D\uDCDD " + d.note; prev.classList.remove("hidden"); }
+  else prev.classList.add("hidden");
+
+  var eq = t.querySelector('[data-role="eq"]');
+  if (Number(d.budget) > 0){ eq.textContent = "= " + fmtVND(d.budget); eq.classList.remove("hidden"); }
+  else eq.classList.add("hidden");
+
+  t.querySelector('input[data-field="title"]').value = d.title;
+  t.querySelector('input[data-field="budget"]').value = d.budget;
+  t.querySelector('textarea[data-field="note"]').value = d.note;
+}
+
+function refreshAllTickets(){ for (var i = 0; i < DAYS; i++) refreshTicket(i); }
+
+// ---------- Summary ----------
+function currentDayIdx(){
+  if (!state.startDate) return -1;
+  var start = new Date(state.startDate + "T00:00:00");
+  var today = new Date(); today.setHours(0,0,0,0);
+  var diff = Math.round((start - today) / 86400000);
+  if (diff > 0) return -1;
+  var day = 1 - diff;
+  return (day >= 1 && day <= DAYS) ? day - 1 : -1;
+}
+
+function refreshSummary(){
+  var doneCount = 0, total = 0, spent = 0;
+  state.days.forEach(function(d){
+    if (d.done) doneCount++;
+    var b = Number(d.budget) || 0;
+    total += b;
+    if (d.done) spent += b;
+  });
+  document.getElementById("barFill").style.width = Math.round(doneCount / DAYS * 100) + "%";
+  document.getElementById("progressLabel").textContent = doneCount + "/" + DAYS + " done";
+  document.getElementById("budgetTotal").textContent = fmtVND(total);
+  document.getElementById("budgetSpent").textContent = fmtVND(spent);
+  document.getElementById("budgetLeft").textContent = fmtVND(total - spent);
+
+  var big = document.getElementById("countdownBig");
+  if (!state.startDate){
+    big.innerHTML = '<small>Set your Day 1 date below.</small>';
+  } else {
+    var start = new Date(state.startDate + "T00:00:00");
+    var today = new Date(); today.setHours(0,0,0,0);
+    var diff = Math.round((start - today) / 86400000);
+    if (diff > 0){
+      big.innerHTML = diff + " " + (diff === 1 ? "day" : "days") + ' <small>until Day 1</small>';
+      big.style.color = "";
+    } else if (1 - diff <= DAYS){
+      big.innerHTML = "Day " + (1 - diff) + ' <small>of ' + DAYS + ' \u2014 today</small>';
+      big.style.color = "var(--gold)";
+    } else {
+      big.innerHTML = "Trip finished \u2713";
+      big.style.color = "";
+    }
+  }
+}
+
+// ---------- Events ----------
+daysEl.addEventListener("click", function(e){
+  var btn = e.target.closest("[data-act]");
+  if (!btn) return;
+  var i = Number(btn.getAttribute("data-i"));
+  if (btn.getAttribute("data-act") === "toggle"){
+    state.days[i].done = !state.days[i].done;
+    save(); refreshTicket(i); refreshSummary();
+  } else if (btn.getAttribute("data-act") === "open"){
+    var prev = openIdx;
+    openIdx = (openIdx === i) ? -1 : i;
+    if (prev >= 0) refreshTicket(prev);
+    refreshTicket(i);
+  }
+});
+
+daysEl.addEventListener("input", function(e){
+  var el = e.target;
+  var field = el.getAttribute("data-field");
+  if (!field) return;
+  var i = Number(el.getAttribute("data-i"));
+  if (field === "budget"){
+    var clean = el.value.replace(/[^0-9]/g, "").slice(0, 12);
+    if (clean !== el.value) el.value = clean;
+    state.days[i].budget = clean;
+    var eq = el.closest(".t-details").querySelector('[data-role="eq"]');
+    if (Number(clean) > 0){ eq.textContent = "= " + fmtVND(clean); eq.classList.remove("hidden"); }
+    else eq.classList.add("hidden");
+    var chip = daysEl.querySelector('.ticket[data-i="'+i+'"] [data-role="chip"]');
+    if (Number(clean) > 0){ chip.textContent = fmtVND(clean); chip.classList.remove("hidden"); }
+    else chip.classList.add("hidden");
+    refreshSummary();
+  } else {
+    state.days[i][field] = el.value;
+    if (field === "title"){
+      var titleEl = daysEl.querySelector('.ticket[data-i="'+i+'"] [data-role="title"]');
+      var todayChip = (i === currentDayIdx()) ? '<span class="today-chip">Today</span>' : "";
+      titleEl.innerHTML = todayChip + (el.value ? esc(el.value) : '<span class="empty">Untitled day \u2014 tap to plan</span>');
+    }
+  }
+  save();
+});
+
+document.getElementById("sideNotes").addEventListener("input", function(e){
+  state.sideNotes = e.target.value; save();
+});
+
+document.getElementById("startDate").addEventListener("input", function(e){
+  state.startDate = e.target.value; save(); refreshSummary(); refreshAllTickets();
+});
+
+document.getElementById("saveNowBtn").addEventListener("click", function(){
+  save();
+  statusEl.textContent = storageWorks ? "Saved \u2713" : statusEl.textContent;
+  setTimeout(function(){ if (storageWorks) statusEl.textContent = "Saved on this browser"; }, 1500);
+});
+
+// ---------- Backup ----------
+var backupPanel = document.getElementById("backupPanel");
+var backupText = document.getElementById("backupText");
+var backupMsg = document.getElementById("backupMsg");
+document.getElementById("backupToggle").addEventListener("click", function(){
+  var hidden = backupPanel.classList.toggle("hidden");
+  this.textContent = hidden ? "Open" : "Close";
+  backupMsg.textContent = "";
+});
+document.getElementById("exportBtn").addEventListener("click", function(){
+  var code = JSON.stringify(state);
+  backupText.value = code;
+  backupMsg.style.color = "var(--ink)";
+  if (navigator.clipboard && navigator.clipboard.writeText){
+    navigator.clipboard.writeText(code).then(function(){
+      backupMsg.textContent = "Copied to clipboard \u2713 \u2014 paste it somewhere safe (notes app, message to yourself).";
+    }, function(){
+      backupMsg.textContent = "Code is in the box \u2014 press and hold to select and copy it.";
+    });
+  } else {
+    backupMsg.textContent = "Code is in the box \u2014 press and hold to select and copy it.";
+  }
+});
+document.getElementById("importBtn").addEventListener("click", function(){
+  try {
+    var p = JSON.parse(backupText.value.trim());
+    if (!p || !Array.isArray(p.days) || p.days.length !== DAYS) throw new Error("bad");
+    state = {
+      days: p.days.map(function(d){ return { title:d.title||"", note:d.note||"", done:!!d.done, budget:d.budget||"" }; }),
+      sideNotes: p.sideNotes || "",
+      startDate: p.startDate || ""
+    };
+    save();
+    document.getElementById("sideNotes").value = state.sideNotes;
+    document.getElementById("startDate").value = state.startDate;
+    refreshAllTickets(); refreshSummary();
+    backupMsg.style.color = "var(--ink)";
+    backupMsg.textContent = "Restored \u2713 \u2014 your plan is back.";
+  } catch(err){
+    backupMsg.style.color = "var(--red)";
+    backupMsg.textContent = "That code doesn\u2019t look right. Paste the full code exactly as it was copied.";
+  }
+});
+
+// ---------- Reset ----------
+var confirmBox = document.getElementById("confirmBox");
+var resetBtn = document.getElementById("resetBtn");
+resetBtn.addEventListener("click", function(){
+  resetBtn.classList.add("hidden"); confirmBox.classList.add("show");
+});
+document.getElementById("resetNo").addEventListener("click", function(){
+  confirmBox.classList.remove("show"); resetBtn.classList.remove("hidden");
+});
+document.getElementById("resetYes").addEventListener("click", function(){
+  state = defaultState(); openIdx = -1; save();
+  document.getElementById("sideNotes").value = "";
+  document.getElementById("startDate").value = "";
+  refreshAllTickets(); refreshSummary();
+  confirmBox.classList.remove("show"); resetBtn.classList.remove("hidden");
+});
+
+// ---------- Init ----------
+buildTickets();
+document.getElementById("sideNotes").value = state.sideNotes;
+document.getElementById("startDate").value = state.startDate;
+refreshAllTickets();
+refreshSummary();
+if (!storageWorks){
+  statusEl.textContent = "This browser blocks saving \u2014 use Backup code";
+  statusEl.style.color = "var(--red)";
+}
+})();
+</script>
+</body>
+</html>
